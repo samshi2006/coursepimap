@@ -64,9 +64,8 @@ function getPositionSuccess( position ){
 	//http://q5.baidu.com/it/u=x=6601;y=1779;z=15;v=014;type=web&fm=44
 	//http://q1.baidu.com/it/u=x=6605;y=1779;z=15;v=014;type=web&fm=44
 	alert('<img src=http://c.tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png />');
-	document.body.innerHTML = 
-		maps(n, page.x, page.y, z)+
-		'<div style="position:absolute; left:'+(dif.x+256*n)+'px; top:'+(dif.y+256*n)+'px; width:5px; height:5px; background:red"></div>'
+	document.body.innerHTML = maps(n, page.x, page.y, z) + setPoint(n, dif.x, dif.y);
+		
 		;
 		
 //	document.body.innerHTML = '<img src=http://q5.baidu.com/it/u=x='+x+';y='+y+';z='+z+';v=014;type=web&fm=44 />';
@@ -75,10 +74,16 @@ function translateCallback(point){
 	var pos = trans(point);
 	var z = 18;
 	var r = Math.pow(2, z-26);
-	x = Math.floor(pos.x*r);
-	y = Math.floor(pos.y*r);
-
-	document.body.innerHTML = maps1(x, y, z);
+	var page = {
+		 x: Math.floor(pos.x*r)
+		,y: Math.floor(pos.y*r)
+	}
+	var n = 1;
+	var dif = {
+		 x: pos.x-page.x*256
+		,y: pos.y-page.y*256
+	}
+	document.body.innerHTML = maps1(n, page.x, page.y, z) + setPoint(n, dif.x, dif.y);
 
 	return;
 
@@ -90,16 +95,19 @@ function translateCallback(point){
     bbmm.setCenter(point);
     //alert(point.lng + "," + point.lat);
 }
-
+function setPoint(n, x, y){
+	return '<div style="position:absolute; left:'+(x+256*n)+'px; top:'+(y+256*n)+'px; width:5px; height:5px; background:red"></div>';
+}
 
 function maps1(n,x,y,z){
 	var _ = [];
 	var str = '';
-	var r = Math.ceil(Math.random()*8);
+	var r;
 	for(var i=0; i<n+n+1; i++){
 		var str = '';
 		for(var j=0; j<n+n+1; j++){
-			str += '<img src="q'+r+'.baidu.com/it/u=x='+(x-n+j)+';y='+(y-n+i)+';z='+z+';v=014;type=web&fm=44" />';
+			r = Math.ceil(Math.random()*8);
+			str += '<img src="http://q'+r+'.baidu.com/it/u=x='+(x-n+j)+';y='+(y+n-i)+';z='+z+';v=014;type=web&fm=44" />';
 		}
 		_.push(str);
 	}
