@@ -1,0 +1,136 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body style="margin:0"></body>
+</html>
+<script src='../js/core.js'></script>
+<script src='../js/tools.js'></script>
+<script src="http://api.map.baidu.com/api?v=1.4"></script>
+<script src="http://developer.baidu.com/map/jsdemo/demo/convertor.js"></script>
+<script src='map.js'></script>
+<script>
+
+geolocation = navigator.geolocation;
+if(1){
+	geolocation.getCurrentPosition(getPositionSuccess, getPositionError);
+}else{
+	getPositionSuccess({coords:{
+		longitude:121.44380853	//经度
+		,latitude:31.27367537		//纬度
+		//121.4561790005@-31.281046177373
+		//121.45614714151@-31.281107497113
+	}});
+}
+function getPositionSuccess( position ){
+	var lng = position.coords.longitude;	//121.4438102 , 121.445217, 121.44518653
+	var lat = position.coords.latitude;		// 31.27366972, 31.276601, 31.276717
+	var gpsPoint = new BMap.Point(lng,lat);
+	$(function(){
+		BMap.Convertor.translate(gpsPoint,0,translateCallback);     //真实经纬度转成百度坐标
+	});
+	return ;
+	//var pos = trans({lng:lng, lat:lat});
+	var DEG_TO_RAD = Math.PI / 180;
+    var x = lng * DEG_TO_RAD;
+    var y = lat * DEG_TO_RAD;
+	y = Math.log(Math.tan(Math.PI/4 + y/2));
+	var z = 15;
+	var scale = Math.pow(2, z+8); 
+	pos = {
+		 x: Math.round(scale*( 0.159154943091895 * x + 0.5))
+		,y: Math.round(scale*(-0.159154943091895 * y + 0.5))
+	};
+
+	
+	var scale = Math.pow(2, z); 
+	page = {
+		 x: Math.floor(scale*( 0.159154943091895 * x + 0.5))
+		,y: Math.floor(scale*(-0.159154943091895 * y + 0.5))
+	};
+	
+	dif = {
+		 x: pos.x-page.x*256
+		,y: pos.y-page.y*256
+	}
+
+	var str = "" + lng + ", " + lat + ', ';
+	str += "" + dif.x + ", " + dif.y;
+	document.title = str;
+	
+	x = pos.x;//Math.floor(pos.x/1);
+	y = pos.y;//Math.floor(pos.y/1);
+	var n=1;
+	//http://q5.baidu.com/it/u=x=6601;y=1779;z=15;v=014;type=web&fm=44
+	//http://q1.baidu.com/it/u=x=6605;y=1779;z=15;v=014;type=web&fm=44
+	alert('<img src=http://c.tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png />');
+	document.body.innerHTML = 
+		maps(n, page.x, page.y, z)+
+		'<div style="position:absolute; left:'+(dif.x+256*n)+'px; top:'+(dif.y+256*n)+'px; width:5px; height:5px; background:red"></div>'
+		;
+		
+//	document.body.innerHTML = '<img src=http://q5.baidu.com/it/u=x='+x+';y='+y+';z='+z+';v=014;type=web&fm=44 />';
+}
+function translateCallback(point){
+	var pos = trans(point);
+	var z = 18;
+	var r = Math.pow(2, z-26);
+	x = Math.floor(pos.x*r);
+	y = Math.floor(pos.y*r);
+
+	document.body.innerHTML = maps1(x, y, z);
+
+	return;
+
+	document.getElementById('allmap').innerHTML = '<img src = "http://api.map.baidu.com/staticimage?center='+x+'&width=300&height=300&zoom=16&markers='+x+'&markerStyles=A|m" />';
+    var marker = new BMap.Marker(point);
+    bbmm.addOverlay(marker);
+    var label = new BMap.Label(point.lng + "," + point.lat +" 我是百度标注哦",{offset:new BMap.Size(20,-10)});
+    marker.setLabel(label); //添加百度label
+    bbmm.setCenter(point);
+    //alert(point.lng + "," + point.lat);
+}
+
+
+function maps1(n,x,y,z){
+	var _ = [];
+	var str = '';
+	var r = Math.ceil(Math.random()*8);
+	for(var i=0; i<n+n+1; i++){
+		var str = '';
+		for(var j=0; j<n+n+1; j++){
+			str += '<img src="q'+r+'.baidu.com/it/u=x='+(x-n+j)+';y='+(y-n+i)+';z='+z+';v=014;type=web&fm=44" />';
+		}
+		_.push(str);
+	}
+	return _.join('<br />');
+}
+function maps(n,x,y,z){
+	var _ = [];
+	var str = '';
+	for(var i=0; i<n+n+1; i++){
+		var str = '';
+		for(var j=0; j<n+n+1; j++){
+			str += '<img src=http://c.tile.openstreetmap.org/'+z+'/'+(x-n+j)+'/'+(y-n+i)+'.png />';
+		}
+		_.push(str);
+	}
+	return _.join('<br />');
+}
+function getPositionError(error){
+	switch(error.code){
+		case error.TIMEOUT :
+			alert( " 连接超时，请重试 " );
+			break;
+		case error.PERMISSION_DENIED :
+			alert( " 您拒绝了使用位置共享服务，查询已取消 " );
+			break;
+		case error.POSITION_UNAVAILABLE : 
+			alert( " 非常抱歉，我们暂时无法为您所在的星球提供位置服务 " );
+			break;
+	}
+}
+function fixTo(x){
+	return Math.round(x*100)/100;
+}
+</script>

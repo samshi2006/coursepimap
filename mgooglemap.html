@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<!--meta name="viewport" content="initial-scale=1.0, user-scalable=no" /-->
+	</head>
+	<body>
+		<img id="map" />
+	</body>
+</html>
+<script src="../js/core.js"></script>
+<script src="../js/tools.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.4"></script>
+<script>
+$(function(){
+	var w = window;
+	$.setFuncs({
+		GPS: function(d){
+			alert(d);
+			lng = d[0];
+			lat = d[1];
+			var z = 15;
+				
+			//document.getElementById('map').src = 'http://api.map.baidu.com/staticimage'
+			//	+'?center='+lat+','+lng
+			//	+'&zoom=18'
+			//	+'&width=512'
+			//	+'&height=512'
+			//;
+			//	
+			//return;		
+			
+			document.getElementById('map').src = 'http://maps.google.com/maps/api/staticmap?center='
+				+lat+','+lng+'&zoom='+z+'&size=600x900&maptype=roadmap&markers=color:red%7Clabel:S%7C'
+				+lat+','+lng+'&sensor=true';
+		}
+	})
+	geolocation = navigator.geolocation;
+	geolocation.getCurrentPosition(getPositionSuccess, getPositionError, {enableHighAccuracy:true, maximumAge:30000});
+	getPositionSuccess({coords:{
+		longitude: 121.48017049687
+		,latitude: 31.28665055271
+	}});
+});
+function getPositionSuccess( position ){
+	var lng = position.coords.longitude;	//121.4438102 , 121.445217, 121.44518653121.461534 || 121.4626 || 
+	var lat = position.coords.latitude;		// 31.27366972, 31.276601, 31.27671731.260866 || 31.2586  || 
+	var z = 15;
+	//var pos = trans({lng:lng, lat:lat});
+    
+	var str = "经度" + lng + "，纬度" + lat;
+	//str += "平面坐标：" + pos.x + ", " + pos.y;
+	document.title = str;
+	
+	$.sendData({GPS: lng+$.SPLIT2+lat+$.SPLIT2+'GOOGLE'});
+
+
+	//var z = 18;
+	//var r = Math.pow(2, z-26);
+	//x = Math.floor(pos.x*r);
+	//y = Math.floor(pos.y*r);
+
+	//document.body.innerHTML = getMaps(x, y, z);
+	//return;
+	//var bm = new BMap.Map("allmap");
+	//bm.centerAndZoom(gpsPoint, 15);
+	//bm.addControl(new BMap.NavigationControl());
+	
+}
+function getPositionError(error){
+	switch(error.code){
+		case error.TIMEOUT :
+			alert( " 连接超时，请重试 " );
+			break;
+		case error.PERMISSION_DENIED :
+			alert( " 您拒绝了使用位置共享服务，查询已取消 " );
+			break;
+		case error.POSITION_UNAVAILABLE : 
+			alert( " 非常抱歉，我们暂时无法为您所在的星球提供位置服务 " );
+			break;
+		default:
+			alert( " 非常抱歉" );
+	}
+}
+</script>

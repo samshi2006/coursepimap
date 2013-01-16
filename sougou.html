@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=gb2312"/>
+<title>搜狗地图 JavaScript API 示例: 简单的定位示例</title>
+<style type="text/css">
+html {height: auto;}
+body {height: auto;margin: 0;padding: 0;}
+#map_canvas {width:1000px;height:0;position: absolute;}
+@media print {#map_canvas {height: 950px;}}
+</style>
+<script type="text/javascript" src="http://api.go2map.com/maps/js/api_v2.5.1.js"></script>
+<script type="text/javascript">
+ /**
+  * 简单的定位示例
+  */
+  //获取我的周边地图
+  function getMyPositionMap() {
+    var map,myLatlng,marker,mapDiv = document.getElementById("map_canvas");
+    //获取浏览器是否支持和用户是否授权的状态码
+    sogou.maps.geoLocation.getAvailableCode(function(code){
+        switch(code){
+            //浏览器支持定位且用户允许
+            case 0:
+                //尝试开始定位
+                sogou.maps.geoLocation.getLocation(function(geoInfo){
+                    //若获取成功
+                    if(geoInfo.states === 0){
+                        //利用获取得到的location值生成地图中心点坐标的LatLng对象
+						document.title = geoInfo.location.point.x +', '+ geoInfo.location.point.y;
+						return;
+                        myLatlng = new sogou.maps.LatLng(geoInfo.location.point.x,geoInfo.location.point.y);
+                        //设置地图高度，在网页上留出地图的位置
+                        mapDiv.style.height = '300px'
+                        //绘制地图
+                        map = new sogou.maps.Map(mapDiv,{
+                            zoom: 12,
+                            center:myLatlng,
+                            mapTypeId: sogou.maps.MapTypeId.ROADMAP
+                        });
+                        //标记"当前位置"
+                        marker = new sogou.maps.Marker({
+                            position: myLatlng,
+                            map: map,
+                            title:"当前位置"
+                        });
+                    }
+                });
+                break;
+            //浏览器支持定位且单用户不允许
+            case 1:
+                alert('您的浏览器支持定位功能，请允许浏览器获取您的位置，然后重试本功能。');
+                break;
+            //浏览器不支持定位
+            case 10:
+                alert('很遗憾，您的浏览器暂不支持定位功能。');
+                break;
+        }
+    })
+  }
+</script>
+</head>
+<body>
+<input type="button" onclick="getMyPositionMap()" value="获取我的周边地图" />
+<div id="map_canvas"></div>
+</body>
+</html>

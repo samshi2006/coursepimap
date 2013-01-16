@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;}
+#l-map{height:100%;width:78%;float:left;border-right:2px solid #bcbcbc;}
+#r-result{height:100%;width:20%;float:left;}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.4"></script>
+<title>设置地图中心点、缩放级别</title>
+</head>
+<body>
+<div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+var map = new BMap.Map("allmap");            // 创建Map实例
+var gpsPoint = new BMap.Point(121.462692, 31.258774);
+map.centerAndZoom(gpsPoint,15);  //初始化时，即可设置中心点和地图缩放级别。
+
+setTimeout(function(){
+    map.setCenter("freebox");   //设置地图中心点。center除了可以为坐标点以外，还支持城市名
+    //map.setZoom(15);  //将视图切换到指定的缩放等级，中心点坐标不变    
+	var markergps = new BMap.Marker(gpsPoint);
+	map.addOverlay(markergps); //添加GPS标注
+}, 1500);
+</script>
